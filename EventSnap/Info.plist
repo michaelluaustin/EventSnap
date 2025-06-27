@@ -2,6 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSCalendarsUsageDescription</key>
+	<string>EventSnap needs calendar access to add events to your calendar</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>EventSnap needs photo library access to select event flyer images</string>
+	<key>NSCameraUsageDescription</key>
+	<string>EventSnap needs camera access to capture event flyers</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
