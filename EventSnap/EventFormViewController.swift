@@ -371,6 +371,115 @@ private func setupActions() {
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
+    // MARK: - Date Parsing
+    private func parseDate(from dateString: String) -> Date? {
+        // Try ISO 8601 format first
+        let isoFormatter = ISO8601DateFormatter()
+        if let date = isoFormatter.date(from: dateString) {
+            return date
+        }
+        
+        // Try custom date formatters for common formats
+        let formatters = [
+            createDateFormatter(format: "yyyy-MM-dd'T'HH:mm:ss"),
+            createDateFormatter(format: "yyyy-MM-dd'T'HH:mm:ssZ"),
+            createDateFormatter(format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ"),
+            createDateFormatter(format: "yyyy-MM-dd HH:mm:ss"),
+            createDateFormatter(format: "MM/dd/yyyy HH:mm"),
+            createDateFormatter(format: "MM/dd/yyyy"),
+            createDateFormatter(format: "MMM dd, yyyy HH:mm"),
+            createDateFormatter(format: "MMM dd, yyyy"),
+            createDateFormatter(format: "MMMM dd, yyyy HH:mm"),
+            createDateFormatter(format: "MMMM dd, yyyy"),
+            
+            // Relative date formats
+            createDateFormatter(format: "EEEE, MMM dd"),
+            createDateFormatter(format: "EEEE, MMMM dd"),
+        ]
+        
+        for formatter in formatters {
+            if let date = formatter.date(from: dateString) {
+                return date
+            }
+        }
+        
+        // Try parsing relative dates like "tomorrow at 2pm", "next Friday", etc.
+        if let relativeDate = parseRelativeDate(from: dateString) {
+            return relativeDate
+        }
+        
+        print("Could not parse date: \(dateString)")
+        return nil
+    }
+    
+    private func createDateFormatter(format: String) -> DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = format
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        return formatter
+    }
+    
+    private func parseRelativeDate(from dateString: String) -> Date? {
+        let calendar = Calendar.current
+        let now = Date()
+        let lowercased = dateString.lowercased()
+        
+        // Handle "tomorrow"
+        if lowercased.contains("tomorrow") {
+            if let tomorrow = calendar.date(byAdding: .day, value: 1, to: now) {
+                return extractTimeFromString(dateString, baseDate: tomorrow)
+            }
+        }
+        
+        // Handle "next [day]"
+        let weekdays = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]
+        for (index, day) in weekdays.enumerated() {
+            if lowercased.contains("next \(day)") {
+                let weekday = index + 1
+                if let nextWeekday = calendar.nextDate(after: now, matching: DateComponents(weekday: weekday), matchingPolicy: .nextTime) {
+                    return extractTimeFromString(dateString, baseDate: nextWeekday)
+                }
+            }
+        }
+        
+        // Handle "today"
+        if lowercased.contains("today") {
+            return extractTimeFromString(dateString, baseDate: now)
+        }
+        
+        return nil
+    }
+    
+    private func extractTimeFromString(_ dateString: String, baseDate: Date) -> Date? {
+        let calendar = Calendar.current
+        let lowercased = dateString.lowercased()
+        
+        // Extract time patterns
+        let timePatterns = [
+            (pattern: "(\\d{1,2}):(\\d{2})\\s*(am|pm)", format: "h:mm a"),
+            (pattern: "(\\d{1,2}):(\\d{2})", format: "HH:mm"),
+            (pattern: "(\\d{1,2})\\s*(am|pm)", format: "h a"),
+        ]
+        
+        for (pattern, format) in timePatterns {
+            if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive),
+               let match = regex.firstMatch(in: dateString, options: [], range: NSRange(location: 0, length: dateString.count)) {
+                
+                let timeString = (dateString as NSString).substring(with: match.range)
+                let formatter = DateFormatter()
+                formatter.dateFormat = format
+                formatter.locale = Locale(identifier: "en_US_POSIX")
+                
+                if let timeDate = formatter.date(from: timeString) {
+                    let timeComponents = calendar.dateComponents([.hour, .minute], from: timeDate)
+                    return calendar.date(bySettingHour: timeComponents.hour ?? 0, minute: timeComponents.minute ?? 0, second: 0, of: baseDate)
+                }
+            }
+        }
+        
+        // If no time found, use the base date as is
+        return baseDate
+    }
 }
 
 extension EventFormViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
@@ -404,7 +513,23 @@ extension EventFormViewController: UIImagePickerControllerDelegate, UINavigation
                                 self?.titleTextField.text = details.title
                                 self?.locationTextField.text = details.location
                                 
-                                // TODO: Parse dates and update date pickers
+                                // Parse dates and update date pickers
+                                if let startDateString = details.startDate {
+                                    if let parsedStartDate = self?.parseDate(from: startDateString) {
+                                        self?.selectedStartDate = parsedStartDate
+                                        self?.startDatePicker.date = parsedStartDate
+                                    }
+                                }
+                                
+                                if let endDateString = details.endDate {
+                                    if let parsedEndDate = self?.parseDate(from: endDateString) {
+                                        self?.selectedEndDate = parsedEndDate
+                                        self?.endDatePicker.date = parsedEndDate
+                                    }
+                                }
+                                
+                                // Update the button titles to reflect the new dates
+                                self?.updateDateButtonTitles()
                             } else {
                                 print("OpenAI extraction failed")
                                 self?.titleTextField.text = "Sample Event"
