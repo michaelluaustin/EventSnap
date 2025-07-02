@@ -47,6 +47,24 @@ class OpenAIService {
     
     private init() {}
     
+    private func extractJSONFromResponse(_ response: String) -> String {
+        // Remove markdown code blocks if present
+        var jsonString = response.trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        // Remove ```json and ``` markers
+        if jsonString.hasPrefix("```json") {
+            jsonString = String(jsonString.dropFirst(7)) // Remove "```json"
+        } else if jsonString.hasPrefix("```") {
+            jsonString = String(jsonString.dropFirst(3)) // Remove "```"
+        }
+        
+        if jsonString.hasSuffix("```") {
+            jsonString = String(jsonString.dropLast(3)) // Remove trailing "```"
+        }
+        
+        return jsonString.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    
     func extractEventDetails(from text: String, completion: @escaping (EventDetails?) -> Void) {
         let prompt = """
         Extract event details from the following text. Return ONLY a JSON object with these fields:
@@ -107,12 +125,14 @@ class OpenAIService {
                 let openAIResponse = try JSONDecoder().decode(OpenAIResponse.self, from: data)
                 let content = openAIResponse.choices.first?.message.content ?? ""
                 
-                // Extract JSON from the response
-                if let jsonData = content.data(using: .utf8),
+                // Extract JSON from the response (handle markdown formatting)
+                let jsonString = self.extractJSONFromResponse(content)
+                if let jsonData = jsonString.data(using: .utf8),
                    let eventDetails = try? JSONDecoder().decode(EventDetails.self, from: jsonData) {
                     completion(eventDetails)
                 } else {
                     print("Failed to parse JSON response: \(content)")
+                    print("Extracted JSON string: \(jsonString)")
                     completion(nil)
                 }
             } catch {
