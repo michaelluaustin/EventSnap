@@ -3,8 +3,8 @@ import UIKit
 class EventFormViewController: UIViewController {
     
     private var selectedImage: UIImage?
-    private var selectedStartDate = Date()
-    private var selectedEndDate = Date().addingTimeInterval(3600) // 1 hour later
+    private var selectedStartDate: Date?
+    private var selectedEndDate: Date?
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -168,10 +168,12 @@ class EventFormViewController: UIViewController {
     private func setupDatePickers() {
         startDatePicker.datePickerMode = .dateAndTime
         startDatePicker.preferredDatePickerStyle = .wheels
+        startDatePicker.date = Date()
         startDatePicker.addTarget(self, action: #selector(startDateChanged), for: .valueChanged)
         
         endDatePicker.datePickerMode = .dateAndTime
         endDatePicker.preferredDatePickerStyle = .wheels
+        endDatePicker.date = Date().addingTimeInterval(3600) // 1 hour later as default picker date
         endDatePicker.addTarget(self, action: #selector(endDateChanged), for: .valueChanged)
         
         updateDateButtonTitles()
@@ -182,8 +184,17 @@ class EventFormViewController: UIViewController {
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
         
-        startDateButton.setTitle("Start: \(formatter.string(from: selectedStartDate))", for: .normal)
-        endDateButton.setTitle("End: \(formatter.string(from: selectedEndDate))", for: .normal)
+        if let startDate = selectedStartDate {
+            startDateButton.setTitle("Start: \(formatter.string(from: startDate))", for: .normal)
+        } else {
+            startDateButton.setTitle("Start Date & Time", for: .normal)
+        }
+        
+        if let endDate = selectedEndDate {
+            endDateButton.setTitle("End: \(formatter.string(from: endDate))", for: .normal)
+        } else {
+            endDateButton.setTitle("End Date & Time", for: .normal)
+        }
     }
 
     @objc private func startDateChanged() {
@@ -281,14 +292,16 @@ private func setupActions() {
     
     @objc private func addToCalendarButtonTapped() {
         guard let title = titleTextField.text, !title.isEmpty,
-              let location = locationTextField.text, !location.isEmpty else {
-            let alert = UIAlertController(title: "Missing Information", message: "Please fill in both title and location", preferredStyle: .alert)
+              let location = locationTextField.text, !location.isEmpty,
+              let startDate = selectedStartDate,
+              let endDate = selectedEndDate else {
+            let alert = UIAlertController(title: "Missing Information", message: "Please fill in title, location, start date, and end date", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             present(alert, animated: true)
             return
         }
         
-        CalendarManager.shared.addEventToCalendar(title: title, location: location, startDate: selectedStartDate, endDate: selectedEndDate) { [weak self] success, error in
+        CalendarManager.shared.addEventToCalendar(title: title, location: location, startDate: startDate, endDate: endDate) { [weak self] success, error in
             DispatchQueue.main.async {
                 if success {
                     let alert = UIAlertController(title: "Success!", message: "Event added to your calendar", preferredStyle: .alert)
