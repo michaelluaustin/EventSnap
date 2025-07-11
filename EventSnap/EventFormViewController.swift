@@ -102,6 +102,7 @@ class EventFormViewController: UIViewController {
         imageView.layer.cornerRadius = 8
         imageView.clipsToBounds = true
         imageView.isHidden = true
+        imageView.isUserInteractionEnabled = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -132,18 +133,54 @@ class EventFormViewController: UIViewController {
         return label
     }()
     
+    private let eventTitleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Event Title"
+        label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        label.textColor = UIColor.label
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
     private let titleTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Event Title"
+        textField.placeholder = "Enter event title"
         textField.borderStyle = .roundedRect
         textField.font = UIFont.systemFont(ofSize: 16)
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
     
+    private let startDateLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Start Time/Date"
+        label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        label.textColor = UIColor.label
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private let endDateLabel: UILabel = {
+        let label = UILabel()
+        label.text = "End Time/Date"
+        label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        label.textColor = UIColor.label
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private let locationLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Event Location"
+        label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
+        label.textColor = UIColor.label
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
     private let locationTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Location"
+        textField.placeholder = "Enter event location"
         textField.borderStyle = .roundedRect
         textField.font = UIFont.systemFont(ofSize: 16)
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -179,9 +216,13 @@ class EventFormViewController: UIViewController {
         contentView.addSubview(imageButtonsStackView)
         contentView.addSubview(imagePreviewView)
         contentView.addSubview(loadingView)
+        contentView.addSubview(eventTitleLabel)
         contentView.addSubview(titleTextField)
+        contentView.addSubview(startDateLabel)
         contentView.addSubview(startDateButton)
+        contentView.addSubview(endDateLabel)
         contentView.addSubview(endDateButton)
+        contentView.addSubview(locationLabel)
         contentView.addSubview(locationTextField)
         contentView.addSubview(addToCalendarButton)
         
@@ -191,6 +232,10 @@ class EventFormViewController: UIViewController {
         // Setup loading view
         loadingView.addSubview(loadingSpinner)
         loadingView.addSubview(loadingLabel)
+        
+        // Setup image preview tap gesture
+        let imageTapGesture = UITapGestureRecognizer(target: self, action: #selector(imagePreviewTapped))
+        imagePreviewView.addGestureRecognizer(imageTapGesture)
         
         setupDatePickers()
         setupScrollViewForKeyboard()
@@ -216,15 +261,15 @@ class EventFormViewController: UIViewController {
         formatter.timeStyle = .short
         
         if let startDate = selectedStartDate {
-            startDateButton.setTitle("Start: \(formatter.string(from: startDate))", for: .normal)
+            startDateButton.setTitle(formatter.string(from: startDate), for: .normal)
         } else {
-            startDateButton.setTitle("Start Date & Time", for: .normal)
+            startDateButton.setTitle("Select start date & time", for: .normal)
         }
         
         if let endDate = selectedEndDate {
-            endDateButton.setTitle("End: \(formatter.string(from: endDate))", for: .normal)
+            endDateButton.setTitle(formatter.string(from: endDate), for: .normal)
         } else {
-            endDateButton.setTitle("End Date & Time", for: .normal)
+            endDateButton.setTitle("Select end date & time", for: .normal)
         }
     }
 
@@ -281,22 +326,38 @@ class EventFormViewController: UIViewController {
             loadingLabel.leadingAnchor.constraint(equalTo: loadingView.leadingAnchor, constant: 20),
             loadingLabel.trailingAnchor.constraint(equalTo: loadingView.trailingAnchor, constant: -20),
             
-            titleTextField.topAnchor.constraint(equalTo: imagePreviewView.bottomAnchor, constant: 24),
+            eventTitleLabel.topAnchor.constraint(equalTo: imagePreviewView.bottomAnchor, constant: 24),
+            eventTitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            eventTitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            
+            titleTextField.topAnchor.constraint(equalTo: eventTitleLabel.bottomAnchor, constant: 8),
             titleTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             titleTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             titleTextField.heightAnchor.constraint(equalToConstant: 44),
             
-            startDateButton.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 16),
+            startDateLabel.topAnchor.constraint(equalTo: titleTextField.bottomAnchor, constant: 16),
+            startDateLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            startDateLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            
+            startDateButton.topAnchor.constraint(equalTo: startDateLabel.bottomAnchor, constant: 8),
             startDateButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             startDateButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             startDateButton.heightAnchor.constraint(equalToConstant: 44),
 
-            endDateButton.topAnchor.constraint(equalTo: startDateButton.bottomAnchor, constant: 16),
+            endDateLabel.topAnchor.constraint(equalTo: startDateButton.bottomAnchor, constant: 16),
+            endDateLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            endDateLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            
+            endDateButton.topAnchor.constraint(equalTo: endDateLabel.bottomAnchor, constant: 8),
             endDateButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             endDateButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             endDateButton.heightAnchor.constraint(equalToConstant: 44),
             
-            locationTextField.topAnchor.constraint(equalTo: endDateButton.bottomAnchor, constant: 16),
+            locationLabel.topAnchor.constraint(equalTo: endDateButton.bottomAnchor, constant: 16),
+            locationLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            locationLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            
+            locationTextField.topAnchor.constraint(equalTo: locationLabel.bottomAnchor, constant: 8),
             locationTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             locationTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             locationTextField.heightAnchor.constraint(equalToConstant: 44),
@@ -439,6 +500,52 @@ private func setupActions() {
         loadingView.isHidden = true
         imagePreviewView.isHidden = false
         loadingSpinner.stopAnimating()
+    }
+    
+    // MARK: - Image Preview
+    @objc private func imagePreviewTapped() {
+        guard let image = selectedImage else { return }
+        showFullScreenImage(image)
+    }
+    
+    private func showFullScreenImage(_ image: UIImage) {
+        let fullScreenVC = UIViewController()
+        fullScreenVC.view.backgroundColor = UIColor.black
+        
+        let imageView = UIImageView(image: image)
+        imageView.contentMode = .scaleAspectFit
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        fullScreenVC.view.addSubview(imageView)
+        
+        // Close button
+        let closeButton = UIButton(type: .system)
+        closeButton.setTitle("✕", for: .normal)
+        closeButton.titleLabel?.font = UIFont.systemFont(ofSize: 24, weight: .bold)
+        closeButton.setTitleColor(.white, for: .normal)
+        closeButton.backgroundColor = UIColor.black.withAlphaComponent(0.5)
+        closeButton.layer.cornerRadius = 20
+        closeButton.translatesAutoresizingMaskIntoConstraints = false
+        closeButton.addTarget(self, action: #selector(dismissFullScreenImage), for: .touchUpInside)
+        fullScreenVC.view.addSubview(closeButton)
+        
+        NSLayoutConstraint.activate([
+            imageView.topAnchor.constraint(equalTo: fullScreenVC.view.topAnchor),
+            imageView.leadingAnchor.constraint(equalTo: fullScreenVC.view.leadingAnchor),
+            imageView.trailingAnchor.constraint(equalTo: fullScreenVC.view.trailingAnchor),
+            imageView.bottomAnchor.constraint(equalTo: fullScreenVC.view.bottomAnchor),
+            
+            closeButton.topAnchor.constraint(equalTo: fullScreenVC.view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            closeButton.trailingAnchor.constraint(equalTo: fullScreenVC.view.trailingAnchor, constant: -16),
+            closeButton.widthAnchor.constraint(equalToConstant: 40),
+            closeButton.heightAnchor.constraint(equalToConstant: 40)
+        ])
+        
+        fullScreenVC.modalPresentationStyle = .fullScreen
+        present(fullScreenVC, animated: true)
+    }
+    
+    @objc private func dismissFullScreenImage() {
+        dismiss(animated: true)
     }
     // MARK: - Date Parsing
     private func parseDate(from dateString: String) -> Date? {
