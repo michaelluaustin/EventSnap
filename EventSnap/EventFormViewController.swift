@@ -557,10 +557,16 @@ private func setupActions() {
         
         // Try custom date formatters for common formats
         let formatters = [
+            // ISO formats (most common for API responses)
+            createDateFormatter(format: "yyyy-MM-dd'T'HH:mm"),
             createDateFormatter(format: "yyyy-MM-dd'T'HH:mm:ss"),
             createDateFormatter(format: "yyyy-MM-dd'T'HH:mm:ssZ"),
             createDateFormatter(format: "yyyy-MM-dd'T'HH:mm:ss.SSSZ"),
+            createDateFormatter(format: "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"),
+            
+            // Other common formats
             createDateFormatter(format: "yyyy-MM-dd HH:mm:ss"),
+            createDateFormatter(format: "yyyy-MM-dd HH:mm"),
             createDateFormatter(format: "MM/dd/yyyy HH:mm"),
             createDateFormatter(format: "MM/dd/yyyy"),
             createDateFormatter(format: "MMM dd, yyyy HH:mm"),
@@ -669,59 +675,48 @@ extension EventFormViewController: UIImagePickerControllerDelegate, UINavigation
             // Show loading state
             showLoadingState()
             
-            // Extract text from image using Vision, then analyze with OpenAI
-            ImageProcessor.shared.extractTextFromImage(image) { [weak self] text in
-                if let text = text {
-                    print("=== VISION EXTRACTED TEXT ===")
-                    print(text)
-                    print("=============================")
+            // Extract event details directly from image using OpenAI Vision API
+            ImageProcessor.shared.extractEventDetailsFromImage(image) { [weak self] eventDetails in
+                DispatchQueue.main.async {
+                    // Hide loading state
+                    self?.hideLoadingState()
                     
-                    // Now send to OpenAI for intelligent analysis
-                    ImageProcessor.shared.extractEventDetailsWithAI(from: text) { eventDetails in
-                        DispatchQueue.main.async {
-                            // Hide loading state
-                            self?.hideLoadingState()
-                            
-                            if let details = eventDetails {
-                                print("=== OPENAI EXTRACTED DETAILS ===")
-                                print("Title: \(details.title)")
-                                print("Location: \(details.location)")
-                                print("Start Date: \(details.startDate ?? "Not found")")
-                                print("End Date: \(details.endDate ?? "Not found")")
-                                print("Description: \(details.description ?? "Not found")")
-                                print("=================================")
-                                
-                                self?.titleTextField.text = details.title
-                                self?.locationTextField.text = details.location
-                                
-                                // Parse dates and update date pickers
-                                if let startDateString = details.startDate {
-                                    if let parsedStartDate = self?.parseDate(from: startDateString) {
-                                        self?.selectedStartDate = parsedStartDate
-                                        self?.startDatePicker.date = parsedStartDate
-                                    }
-                                }
-                                
-                                if let endDateString = details.endDate {
-                                    if let parsedEndDate = self?.parseDate(from: endDateString) {
-                                        self?.selectedEndDate = parsedEndDate
-                                        self?.endDatePicker.date = parsedEndDate
-                                    }
-                                }
-                                
-                                // Update the button titles to reflect the new dates
-                                self?.updateDateButtonTitles()
-                            } else {
-                                print("OpenAI extraction failed")
-                                self?.titleTextField.text = "Sample Event"
-                                self?.locationTextField.text = "Sample Location"
-                            }
+                    if let details = eventDetails {
+                        print("=== OPENAI API EXTRACTED DETAILS ===")
+                        print("Title: \(details.eventTitle)")
+                        print("Location: \(details.location)")
+                        print("Start Time: \(details.startTime)")
+                        print("End Time: \(details.endTime)")
+                        print("Description: \(details.description ?? "Not found")")
+                        print("RSVP Link: \(details.rsvpLink ?? "Not found")")
+                        print("=======================================")
+                        
+                        self?.titleTextField.text = details.eventTitle
+                        self?.locationTextField.text = details.location
+                        
+                        // Parse dates and update date pickers
+                        print("Attempting to parse start time: '\(details.startTime)'")
+                        if let parsedStartDate = self?.parseDate(from: details.startTime) {
+                            print("Successfully parsed start date: \(parsedStartDate)")
+                            self?.selectedStartDate = parsedStartDate
+                            self?.startDatePicker.date = parsedStartDate
+                        } else {
+                            print("Failed to parse start date from: '\(details.startTime)'")
                         }
-                    }
-                } else {
-                    DispatchQueue.main.async {
-                        // Hide loading state
-                        self?.hideLoadingState()
+                        
+                        print("Attempting to parse end time: '\(details.endTime)'")
+                        if let parsedEndDate = self?.parseDate(from: details.endTime) {
+                            print("Successfully parsed end date: \(parsedEndDate)")
+                            self?.selectedEndDate = parsedEndDate
+                            self?.endDatePicker.date = parsedEndDate
+                        } else {
+                            print("Failed to parse end date from: '\(details.endTime)'")
+                        }
+                        
+                        // Update the button titles to reflect the new dates
+                        self?.updateDateButtonTitles()
+                    } else {
+                        print("OpenAI Vision extraction failed")
                         self?.titleTextField.text = "Sample Event"
                         self?.locationTextField.text = "Sample Location"
                     }

@@ -1,5 +1,4 @@
 import UIKit
-import Vision
 import VisionKit
 
 class ImageProcessor: NSObject {
@@ -41,55 +40,41 @@ class ImageProcessor: NSObject {
         viewController.present(imagePicker, animated: true)
     }
     
-    // MARK: - Hybrid AI Text Recognition
-    func extractTextFromImage(_ image: UIImage, completion: @escaping (String?) -> Void) {
-        guard let cgImage = image.cgImage else {
+    // MARK: - Image to Data URI Conversion
+    func convertImageToDataURI(_ image: UIImage) -> String? {
+        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+            print("Failed to convert image to JPEG data")
+            return nil
+        }
+        
+        let base64String = imageData.base64EncodedString()
+        return "data:image/jpeg;base64,\(base64String)"
+    }
+    
+    // MARK: - OpenAI Event Details Extraction with Vision API
+    func extractEventDetailsFromImage(_ image: UIImage, completion: @escaping (EventDetails?) -> Void) {
+        guard let dataUri = convertImageToDataURI(image) else {
+            print("Failed to convert image to data URI")
             completion(nil)
             return
         }
         
-        let requestHandler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-        let request = VNRecognizeTextRequest { request, error in
-            if let error = error {
-                print("Text recognition error: \(error)")
-                completion(nil)
-                return
-            }
-            
-            guard let observations = request.results as? [VNRecognizedTextObservation] else {
-                completion(nil)
-                return
-            }
-            
-            // Sort observations by vertical position (top to bottom)
-            let sortedObservations = observations.sorted { obs1, obs2 in
-                obs1.boundingBox.minY > obs2.boundingBox.minY
-            }
-            
-            let recognizedText = sortedObservations.compactMap { observation in
-                observation.topCandidates(1).first?.string
-            }.joined(separator: "\n")
-            
-            print("Vision extracted text: \(recognizedText)")
-            completion(recognizedText)
-        }
-        
-        request.recognitionLevel = .accurate
-        request.usesLanguageCorrection = true
-        
-        do {
-            try requestHandler.perform([request])
-        } catch {
-            print("Failed to perform text recognition: \(error)")
-            completion(nil)
+        OpenAIService.shared.extractEventDetailsFromImage(dataUri) { eventDetails in
+            completion(eventDetails)
         }
     }
     
-    // MARK: - OpenAI Event Details Extraction
+    // Legacy method for backward compatibility (can be removed later)
+    func extractTextFromImage(_ image: UIImage, completion: @escaping (String?) -> Void) {
+        // This method is now deprecated - use extractEventDetailsFromImage instead
+        print("Warning: extractTextFromImage is deprecated. Use extractEventDetailsFromImage instead.")
+        completion(nil)
+    }
+    
     func extractEventDetailsWithAI(from text: String, completion: @escaping (EventDetails?) -> Void) {
-        OpenAIService.shared.extractEventDetails(from: text) { eventDetails in
-            completion(eventDetails)
-        }
+        // This method is now deprecated - use extractEventDetailsFromImage instead
+        print("Warning: extractEventDetailsWithAI is deprecated. Use extractEventDetailsFromImage instead.")
+        completion(nil)
     }
 }
 

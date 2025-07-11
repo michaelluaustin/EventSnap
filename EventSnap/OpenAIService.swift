@@ -1,14 +1,25 @@
 import Foundation
 
-struct OpenAIRequest: Codable {
+struct OpenAIVisionRequest: Codable {
     let model: String
-    let messages: [Message]
+    let messages: [VisionMessage]
     let temperature: Double
+    let max_tokens: Int
 }
 
-struct Message: Codable {
+struct VisionMessage: Codable {
     let role: String
-    let content: String
+    let content: [VisionContent]
+}
+
+struct VisionContent: Codable {
+    let type: String
+    let text: String?
+    let image_url: ImageURL?
+}
+
+struct ImageURL: Codable {
+    let url: String
 }
 
 struct OpenAIResponse: Codable {
@@ -19,10 +30,15 @@ struct Choice: Codable {
     let message: Message
 }
 
+struct Message: Codable {
+    let role: String
+    let content: String
+}
+
 struct EventDetails: Codable {
-    let title: String
-    let startDate: String?
-    let endDate: String?
+    let eventTitle: String
+    let startTime: String
+    let endTime: String
     let location: String
     let description: String?
     let rsvpLink: String?
@@ -44,7 +60,6 @@ class OpenAIService {
         return URLSession(configuration: config)
     }()
     
-    
     private init() {}
     
     private func extractJSONFromResponse(_ response: String) -> String {
@@ -65,29 +80,35 @@ class OpenAIService {
         return jsonString.trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
-    func extractEventDetails(from text: String, completion: @escaping (EventDetails?) -> Void) {
+    func extractEventDetailsFromImage(_ imageDataUri: String, completion: @escaping (EventDetails?) -> Void) {
         let prompt = """
-        Extract event details from the following text. Return ONLY a JSON object with these fields:
-        - title: The event title
-        - startDate: Start date and time (ISO format if possible, or descriptive text)
-        - endDate: End date and time (ISO format if possible, or descriptive text)  
-        - location: The event location
-        - description: Event description (optional)
-        - rsvpLink: RSVP link if found (optional)
-        
-        If a field cannot be determined, use null or empty string.
-        
-        Text to analyze:
-        \(text)
+        You are an AI assistant designed to extract event details from an image of a flyer, brochure, or email. Analyze the provided image and extract the following information:
+
+        - Event Title: The title of the event.
+        - Start Date & Time: The start date and time of the event in ISO format (YYYY-MM-DDTHH:mm).
+        - End Date & Time: The end date and time of the event in ISO format (YYYY-MM-DDTHH:mm).
+        - Location: The location of the event.
+        - Description: A description of the event, if available.
+        - RSVP Link: An RSVP link for the event, if available.
+
+        If any information is not present, leave the corresponding field blank.
+
+        Return the result as a JSON object with keys: eventTitle, startTime, endTime, location, description, rsvpLink.
         """
         
-        let request = OpenAIRequest(
-            model: "gpt-4o-mini",
+        let request = OpenAIVisionRequest(
+            model: "gpt-4o",
             messages: [
-                Message(role: "system", content: "You are an expert at extracting event details from text. Return only valid JSON."),
-                Message(role: "user", content: prompt)
+                VisionMessage(
+                    role: "user",
+                    content: [
+                        VisionContent(type: "text", text: prompt, image_url: nil),
+                        VisionContent(type: "image_url", text: nil, image_url: ImageURL(url: imageDataUri))
+                    ]
+                )
             ],
-            temperature: 0.1
+            temperature: 0.1,
+            max_tokens: 1000
         )
         
         guard let url = URL(string: baseURL) else {
@@ -140,5 +161,12 @@ class OpenAIService {
                 completion(nil)
             }
         }.resume()
+    }
+    
+    // Legacy method for backward compatibility (can be removed later)
+    func extractEventDetails(from text: String, completion: @escaping (EventDetails?) -> Void) {
+        // This method is now deprecated - use extractEventDetailsFromImage instead
+        print("Warning: extractEventDetails(from:) is deprecated. Use extractEventDetailsFromImage instead.")
+        completion(nil)
     }
 }
