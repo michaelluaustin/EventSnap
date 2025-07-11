@@ -106,6 +106,32 @@ class EventFormViewController: UIViewController {
         return imageView
     }()
     
+    private let loadingView: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.systemGray6
+        view.layer.cornerRadius = 8
+        view.isHidden = true
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private let loadingSpinner: UIActivityIndicatorView = {
+        let spinner = UIActivityIndicatorView(style: .large)
+        spinner.color = UIColor.systemBlue
+        spinner.translatesAutoresizingMaskIntoConstraints = false
+        return spinner
+    }()
+    
+    private let loadingLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Processing image..."
+        label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        label.textColor = UIColor.secondaryLabel
+        label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
     private let titleTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Event Title"
@@ -152,6 +178,7 @@ class EventFormViewController: UIViewController {
         contentView.addSubview(subtitleLabel)
         contentView.addSubview(imageButtonsStackView)
         contentView.addSubview(imagePreviewView)
+        contentView.addSubview(loadingView)
         contentView.addSubview(titleTextField)
         contentView.addSubview(startDateButton)
         contentView.addSubview(endDateButton)
@@ -160,6 +187,10 @@ class EventFormViewController: UIViewController {
         
         imageButtonsStackView.addArrangedSubview(takePhotoButton)
         imageButtonsStackView.addArrangedSubview(choosePhotoButton)
+        
+        // Setup loading view
+        loadingView.addSubview(loadingSpinner)
+        loadingView.addSubview(loadingLabel)
         
         setupDatePickers()
         setupScrollViewForKeyboard()
@@ -237,6 +268,18 @@ class EventFormViewController: UIViewController {
             imagePreviewView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             imagePreviewView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             imagePreviewView.heightAnchor.constraint(equalToConstant: 200),
+            
+            loadingView.topAnchor.constraint(equalTo: imageButtonsStackView.bottomAnchor, constant: 16),
+            loadingView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            loadingView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            loadingView.heightAnchor.constraint(equalToConstant: 200),
+            
+            loadingSpinner.centerXAnchor.constraint(equalTo: loadingView.centerXAnchor),
+            loadingSpinner.centerYAnchor.constraint(equalTo: loadingView.centerYAnchor, constant: -20),
+            
+            loadingLabel.topAnchor.constraint(equalTo: loadingSpinner.bottomAnchor, constant: 16),
+            loadingLabel.leadingAnchor.constraint(equalTo: loadingView.leadingAnchor, constant: 20),
+            loadingLabel.trailingAnchor.constraint(equalTo: loadingView.trailingAnchor, constant: -20),
             
             titleTextField.topAnchor.constraint(equalTo: imagePreviewView.bottomAnchor, constant: 24),
             titleTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
@@ -384,6 +427,19 @@ private func setupActions() {
     @objc private func dismissKeyboard() {
         view.endEditing(true)
     }
+    
+    // MARK: - Loading State Management
+    private func showLoadingState() {
+        loadingView.isHidden = false
+        imagePreviewView.isHidden = true
+        loadingSpinner.startAnimating()
+    }
+    
+    private func hideLoadingState() {
+        loadingView.isHidden = true
+        imagePreviewView.isHidden = false
+        loadingSpinner.stopAnimating()
+    }
     // MARK: - Date Parsing
     private func parseDate(from dateString: String) -> Date? {
         // Try ISO 8601 format first
@@ -502,7 +558,9 @@ extension EventFormViewController: UIImagePickerControllerDelegate, UINavigation
         if let image = info[.originalImage] as? UIImage {
             selectedImage = image
             imagePreviewView.image = image
-            imagePreviewView.isHidden = false
+            
+            // Show loading state
+            showLoadingState()
             
             // Extract text from image using Vision, then analyze with OpenAI
             ImageProcessor.shared.extractTextFromImage(image) { [weak self] text in
@@ -514,6 +572,9 @@ extension EventFormViewController: UIImagePickerControllerDelegate, UINavigation
                     // Now send to OpenAI for intelligent analysis
                     ImageProcessor.shared.extractEventDetailsWithAI(from: text) { eventDetails in
                         DispatchQueue.main.async {
+                            // Hide loading state
+                            self?.hideLoadingState()
+                            
                             if let details = eventDetails {
                                 print("=== OPENAI EXTRACTED DETAILS ===")
                                 print("Title: \(details.title)")
@@ -552,6 +613,8 @@ extension EventFormViewController: UIImagePickerControllerDelegate, UINavigation
                     }
                 } else {
                     DispatchQueue.main.async {
+                        // Hide loading state
+                        self?.hideLoadingState()
                         self?.titleTextField.text = "Sample Event"
                         self?.locationTextField.text = "Sample Location"
                     }
