@@ -397,13 +397,15 @@ private func setupActions() {
     @objc private func addToCalendarButtonTapped() {
         guard let title = titleTextField.text, !title.isEmpty,
               let location = locationTextField.text, !location.isEmpty,
-              let startDate = selectedStartDate,
-              let endDate = selectedEndDate else {
-            let alert = UIAlertController(title: "Missing Information", message: "Please fill in title, location, start date, and end date", preferredStyle: .alert)
+              let startDate = selectedStartDate else {
+            let alert = UIAlertController(title: "Missing Information", message: "Please fill in title, location, and start date", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default))
             present(alert, animated: true)
             return
         }
+        
+        // If no end date is provided, set it to one hour after the start date
+        let endDate = selectedEndDate ?? Calendar.current.date(byAdding: .hour, value: 1, to: startDate) ?? startDate
         
         CalendarManager.shared.addEventToCalendar(title: title, location: location, startDate: startDate, endDate: endDate) { [weak self] success, error in
             DispatchQueue.main.async {
