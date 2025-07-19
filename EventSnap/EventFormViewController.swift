@@ -2,9 +2,9 @@ import UIKit
 
 class EventFormViewController: UIViewController {
     
-    private var selectedImage: UIImage?
-    private var selectedStartDate: Date?
-    private var selectedEndDate: Date?
+    internal var selectedImage: UIImage?
+    internal var selectedStartDate: Date?
+    internal var selectedEndDate: Date?
     
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -20,7 +20,7 @@ class EventFormViewController: UIViewController {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Extract Event Details"
+        label.text = "Review Event Details"
         label.font = UIFont.systemFont(ofSize: 24, weight: .bold)
         label.textColor = UIColor.systemBlue
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -29,7 +29,7 @@ class EventFormViewController: UIViewController {
     
     private let subtitleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Upload or capture an image of an event flyer to automatically fill in the details."
+        label.text = "Review and edit the extracted event details before adding to your calendar."
         label.font = UIFont.systemFont(ofSize: 14)
         label.textColor = UIColor.secondaryLabel
         label.numberOfLines = 0
@@ -92,10 +92,10 @@ class EventFormViewController: UIViewController {
         return button
     }()
 
-    private let startDatePicker = UIDatePicker()
-    private let endDatePicker = UIDatePicker()
+    internal let startDatePicker = UIDatePicker()
+    internal let endDatePicker = UIDatePicker()
     
-    private let imagePreviewView: UIImageView = {
+    internal let imagePreviewView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
         imageView.backgroundColor = UIColor.systemGray6
@@ -142,7 +142,7 @@ class EventFormViewController: UIViewController {
         return label
     }()
     
-    private let titleTextField: UITextField = {
+    internal let titleTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Enter event title"
         textField.borderStyle = .roundedRect
@@ -178,7 +178,7 @@ class EventFormViewController: UIViewController {
         return label
     }()
     
-    private let locationTextField: UITextField = {
+    internal let locationTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Enter event location"
         textField.borderStyle = .roundedRect
@@ -203,6 +203,20 @@ class EventFormViewController: UIViewController {
         setupUI()
         setupConstraints()
         setupActions()
+        
+        // Hide photo input buttons since this is the final review page
+        imageButtonsStackView.isHidden = true
+        loadingView.isHidden = true
+        
+        // Show image preview for review
+        imagePreviewView.isHidden = false
+    }
+    
+    // Method to set extracted data from processing
+    func setExtractedData(_ data: [String: Any]) {
+        // This will be called from ProcessingViewController
+        // For now, we'll use the existing image processing logic
+        // In a real implementation, you'd pass the extracted data here
     }
     
     private func setupUI() {
@@ -255,7 +269,7 @@ class EventFormViewController: UIViewController {
         updateDateButtonTitles()
     }
 
-    private func updateDateButtonTitles() {
+    internal func updateDateButtonTitles() {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .short
@@ -550,7 +564,7 @@ private func setupActions() {
         dismiss(animated: true)
     }
     // MARK: - Date Parsing
-    private func parseDate(from dateString: String) -> Date? {
+    internal func parseDate(from dateString: String) -> Date? {
         // Try ISO 8601 format first
         let isoFormatter = ISO8601DateFormatter()
         if let date = isoFormatter.date(from: dateString) {
