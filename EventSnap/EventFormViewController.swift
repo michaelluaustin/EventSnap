@@ -29,7 +29,7 @@ class EventFormViewController: UIViewController {
     
     private let subtitleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Review and edit the extracted event details before adding to your calendar."
+        label.text = "Make sure to double-check if all the details look correct!"
         label.font = UIFont.systemFont(ofSize: 14)
         label.textColor = UIColor.secondaryLabel
         label.numberOfLines = 0
@@ -95,16 +95,19 @@ class EventFormViewController: UIViewController {
     internal let startDatePicker = UIDatePicker()
     internal let endDatePicker = UIDatePicker()
     
-    internal let imagePreviewView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
-        imageView.backgroundColor = UIColor.systemGray6
-        imageView.layer.cornerRadius = 8
-        imageView.clipsToBounds = true
-        imageView.isHidden = true
-        imageView.isUserInteractionEnabled = true
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        return imageView
+
+    
+    private let showImageButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("Show Image", for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        button.backgroundColor = UIColor.systemGray5
+        button.setTitleColor(UIColor.systemBlue, for: .normal)
+        button.layer.cornerRadius = 8
+        button.layer.borderWidth = 1
+        button.layer.borderColor = UIColor.systemGray4.cgColor
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
     }()
     
     private let loadingView: UIView = {
@@ -138,6 +141,7 @@ class EventFormViewController: UIViewController {
         label.text = "Event Title"
         label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         label.textColor = UIColor.label
+        label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -156,6 +160,7 @@ class EventFormViewController: UIViewController {
         label.text = "Start Time/Date"
         label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         label.textColor = UIColor.label
+        label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -165,6 +170,7 @@ class EventFormViewController: UIViewController {
         label.text = "End Time/Date"
         label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         label.textColor = UIColor.label
+        label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -174,6 +180,7 @@ class EventFormViewController: UIViewController {
         label.text = "Event Location"
         label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         label.textColor = UIColor.label
+        label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -208,8 +215,8 @@ class EventFormViewController: UIViewController {
         imageButtonsStackView.isHidden = true
         loadingView.isHidden = true
         
-        // Show image preview for review
-        imagePreviewView.isHidden = false
+        // Show image button for review
+        showImageButton.isHidden = false
     }
     
     // Method to set extracted data from processing
@@ -228,7 +235,7 @@ class EventFormViewController: UIViewController {
         contentView.addSubview(titleLabel)
         contentView.addSubview(subtitleLabel)
         contentView.addSubview(imageButtonsStackView)
-        contentView.addSubview(imagePreviewView)
+        contentView.addSubview(showImageButton)
         contentView.addSubview(loadingView)
         contentView.addSubview(eventTitleLabel)
         contentView.addSubview(titleTextField)
@@ -247,9 +254,7 @@ class EventFormViewController: UIViewController {
         loadingView.addSubview(loadingSpinner)
         loadingView.addSubview(loadingLabel)
         
-        // Setup image preview tap gesture
-        let imageTapGesture = UITapGestureRecognizer(target: self, action: #selector(imagePreviewTapped))
-        imagePreviewView.addGestureRecognizer(imageTapGesture)
+
         
         setupDatePickers()
         setupScrollViewForKeyboard()
@@ -323,10 +328,10 @@ class EventFormViewController: UIViewController {
             imageButtonsStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             imageButtonsStackView.heightAnchor.constraint(equalToConstant: 44),
             
-            imagePreviewView.topAnchor.constraint(equalTo: imageButtonsStackView.bottomAnchor, constant: 16),
-            imagePreviewView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            imagePreviewView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            imagePreviewView.heightAnchor.constraint(equalToConstant: 200),
+            showImageButton.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 24),
+            showImageButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            showImageButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            showImageButton.heightAnchor.constraint(equalToConstant: 44),
             
             loadingView.topAnchor.constraint(equalTo: imageButtonsStackView.bottomAnchor, constant: 16),
             loadingView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
@@ -340,7 +345,7 @@ class EventFormViewController: UIViewController {
             loadingLabel.leadingAnchor.constraint(equalTo: loadingView.leadingAnchor, constant: 20),
             loadingLabel.trailingAnchor.constraint(equalTo: loadingView.trailingAnchor, constant: -20),
             
-            eventTitleLabel.topAnchor.constraint(equalTo: imagePreviewView.bottomAnchor, constant: 24),
+            eventTitleLabel.topAnchor.constraint(equalTo: showImageButton.bottomAnchor, constant: 24),
             eventTitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             eventTitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             
@@ -387,6 +392,7 @@ class EventFormViewController: UIViewController {
 private func setupActions() {
         takePhotoButton.addTarget(self, action: #selector(takePhotoButtonTapped), for: .touchUpInside)
         choosePhotoButton.addTarget(self, action: #selector(choosePhotoButtonTapped), for: .touchUpInside)
+        showImageButton.addTarget(self, action: #selector(showImageButtonTapped), for: .touchUpInside)
         startDateButton.addTarget(self, action: #selector(startDateButtonTapped), for: .touchUpInside)
         endDateButton.addTarget(self, action: #selector(endDateButtonTapped), for: .touchUpInside)
         addToCalendarButton.addTarget(self, action: #selector(addToCalendarButtonTapped), for: .touchUpInside)
@@ -406,6 +412,11 @@ private func setupActions() {
         imagePicker.sourceType = .photoLibrary
         imagePicker.delegate = self
         present(imagePicker, animated: true)
+    }
+    
+    @objc private func showImageButtonTapped() {
+        guard let image = selectedImage else { return }
+        showFullScreenImage(image)
     }
     
     @objc private func addToCalendarButtonTapped() {
@@ -508,21 +519,17 @@ private func setupActions() {
     // MARK: - Loading State Management
     private func showLoadingState() {
         loadingView.isHidden = false
-        imagePreviewView.isHidden = true
+        showImageButton.isHidden = true
         loadingSpinner.startAnimating()
     }
     
     private func hideLoadingState() {
         loadingView.isHidden = true
-        imagePreviewView.isHidden = false
+        showImageButton.isHidden = false
         loadingSpinner.stopAnimating()
     }
     
-    // MARK: - Image Preview
-    @objc private func imagePreviewTapped() {
-        guard let image = selectedImage else { return }
-        showFullScreenImage(image)
-    }
+
     
     private func showFullScreenImage(_ image: UIImage) {
         let fullScreenVC = UIViewController()
@@ -686,7 +693,6 @@ extension EventFormViewController: UIImagePickerControllerDelegate, UINavigation
         
         if let image = info[.originalImage] as? UIImage {
             selectedImage = image
-            imagePreviewView.image = image
             
             // Show loading state
             showLoadingState()

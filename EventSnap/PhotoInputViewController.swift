@@ -26,7 +26,7 @@ class PhotoInputViewController: UIViewController {
     
     private let subtitleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Capture event flyers and automatically extract details to add to your calendar"
+        label.text = "Add events to your calendar quickly with just your camera!"
         label.font = UIFont.systemFont(ofSize: 16)
         label.textColor = UIColor.secondaryLabel
         label.textAlignment = .center
@@ -37,7 +37,7 @@ class PhotoInputViewController: UIViewController {
     
     private let imageButtonsStackView: UIStackView = {
         let stackView = UIStackView()
-        stackView.axis = .horizontal
+        stackView.axis = .vertical
         stackView.spacing = 20
         stackView.distribution = .fillEqually
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -46,22 +46,26 @@ class PhotoInputViewController: UIViewController {
     
     private let takePhotoButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Take Photo", for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+        button.setTitle("Take\nPhoto", for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 32, weight: .bold)
+        button.titleLabel?.numberOfLines = 0
+        button.titleLabel?.textAlignment = .center
         button.backgroundColor = UIColor.systemBlue
         button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 12
+        button.layer.cornerRadius = 16
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
     private let choosePhotoButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Choose Photo", for: .normal)
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+        button.setTitle("Choose\nPhoto", for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 32, weight: .bold)
+        button.titleLabel?.numberOfLines = 0
+        button.titleLabel?.textAlignment = .center
         button.backgroundColor = UIColor.systemGray5
         button.setTitleColor(.label, for: .normal)
-        button.layer.cornerRadius = 12
+        button.layer.cornerRadius = 16
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -100,8 +104,8 @@ class PhotoInputViewController: UIViewController {
             contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
             
+            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 60),
             titleLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor, constant: -80),
             
             subtitleLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
             subtitleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
@@ -110,7 +114,7 @@ class PhotoInputViewController: UIViewController {
             imageButtonsStackView.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 60),
             imageButtonsStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 40),
             imageButtonsStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -40),
-            imageButtonsStackView.heightAnchor.constraint(equalToConstant: 60),
+            imageButtonsStackView.heightAnchor.constraint(equalToConstant: 400),
             imageButtonsStackView.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -40)
         ])
     }

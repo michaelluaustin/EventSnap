@@ -304,7 +304,6 @@ class ProcessingViewController: UIViewController {
             // Set the selected image for preview
             if let image = self.selectedImage {
                 eventFormVC.selectedImage = image
-                eventFormVC.imagePreviewView.image = image
             }
             
             // Pre-populate the form with extracted data
