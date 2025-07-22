@@ -22,7 +22,7 @@ class EventFormViewController: UIViewController {
         let label = UILabel()
         label.text = "Review Event Details"
         label.font = UIFont.systemFont(ofSize: 24, weight: .bold)
-        label.textColor = UIColor.systemBlue
+        label.textColor = UIColor(red: 0.8, green: 0.4, blue: 1.0, alpha: 1.0) // Bright purple
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -31,7 +31,7 @@ class EventFormViewController: UIViewController {
         let label = UILabel()
         label.text = "Make sure to double-check if all the details look correct!"
         label.font = UIFont.systemFont(ofSize: 14)
-        label.textColor = UIColor.secondaryLabel
+        label.textColor = UIColor.lightGray
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -72,8 +72,8 @@ class EventFormViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("Start Date & Time", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16)
-        button.backgroundColor = UIColor.systemGray6
-        button.setTitleColor(.label, for: .normal)
+        button.backgroundColor = UIColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 1.0) // Dark gray
+        button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 8
         button.contentHorizontalAlignment = .left
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -84,8 +84,8 @@ class EventFormViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("End Date & Time", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16)
-        button.backgroundColor = UIColor.systemGray6
-        button.setTitleColor(.label, for: .normal)
+        button.backgroundColor = UIColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 1.0) // Dark gray
+        button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 8
         button.contentHorizontalAlignment = .left
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -101,18 +101,18 @@ class EventFormViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("Show Image", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        button.backgroundColor = UIColor.systemGray5
-        button.setTitleColor(UIColor.systemBlue, for: .normal)
+        button.backgroundColor = UIColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 1.0) // Dark gray
+        button.setTitleColor(UIColor(red: 0.8, green: 0.4, blue: 1.0, alpha: 1.0), for: .normal) // Bright purple
         button.layer.cornerRadius = 8
         button.layer.borderWidth = 1
-        button.layer.borderColor = UIColor.systemGray4.cgColor
+        button.layer.borderColor = UIColor(red: 0.8, green: 0.4, blue: 1.0, alpha: 1.0).cgColor // Bright purple border
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
     private let loadingView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor.systemGray6
+        view.backgroundColor = UIColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 1.0) // Dark gray
         view.layer.cornerRadius = 8
         view.isHidden = true
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -121,7 +121,7 @@ class EventFormViewController: UIViewController {
     
     private let loadingSpinner: UIActivityIndicatorView = {
         let spinner = UIActivityIndicatorView(style: .large)
-        spinner.color = UIColor.systemBlue
+        spinner.color = UIColor(red: 0.8, green: 0.4, blue: 1.0, alpha: 1.0) // Bright purple
         spinner.translatesAutoresizingMaskIntoConstraints = false
         return spinner
     }()
@@ -130,7 +130,7 @@ class EventFormViewController: UIViewController {
         let label = UILabel()
         label.text = "Processing image..."
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        label.textColor = UIColor.secondaryLabel
+        label.textColor = UIColor.lightGray
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -140,7 +140,7 @@ class EventFormViewController: UIViewController {
         let label = UILabel()
         label.text = "Event Title"
         label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
-        label.textColor = UIColor.label
+        label.textColor = UIColor.white
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -151,6 +151,8 @@ class EventFormViewController: UIViewController {
         textField.placeholder = "Enter event title"
         textField.borderStyle = .roundedRect
         textField.font = UIFont.systemFont(ofSize: 16)
+        textField.textColor = UIColor.white
+        textField.backgroundColor = UIColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 1.0) // Dark gray
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
@@ -159,7 +161,7 @@ class EventFormViewController: UIViewController {
         let label = UILabel()
         label.text = "Start Time/Date"
         label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
-        label.textColor = UIColor.label
+        label.textColor = UIColor.white
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -169,7 +171,7 @@ class EventFormViewController: UIViewController {
         let label = UILabel()
         label.text = "End Time/Date"
         label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
-        label.textColor = UIColor.label
+        label.textColor = UIColor.white
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -179,7 +181,7 @@ class EventFormViewController: UIViewController {
         let label = UILabel()
         label.text = "Event Location"
         label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
-        label.textColor = UIColor.label
+        label.textColor = UIColor.white
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -190,6 +192,8 @@ class EventFormViewController: UIViewController {
         textField.placeholder = "Enter event location"
         textField.borderStyle = .roundedRect
         textField.font = UIFont.systemFont(ofSize: 16)
+        textField.textColor = UIColor.white
+        textField.backgroundColor = UIColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 1.0) // Dark gray
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
@@ -198,7 +202,7 @@ class EventFormViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("Add to Calendar", for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
-        button.backgroundColor = UIColor.systemBlue
+        button.backgroundColor = UIColor(red: 0.8, green: 0.4, blue: 1.0, alpha: 1.0) // Bright purple
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 12
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -227,7 +231,7 @@ class EventFormViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = UIColor.systemBackground
+        view.backgroundColor = UIColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1.0) // Dark background
         
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)

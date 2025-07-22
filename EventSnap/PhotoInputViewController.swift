@@ -18,7 +18,7 @@ class PhotoInputViewController: UIViewController {
         let label = UILabel()
         label.text = "EventSnap"
         label.font = UIFont.systemFont(ofSize: 32, weight: .bold)
-        label.textColor = UIColor.systemBlue
+        label.textColor = UIColor(red: 0.8, green: 0.4, blue: 1.0, alpha: 1.0) // Bright purple
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -28,7 +28,7 @@ class PhotoInputViewController: UIViewController {
         let label = UILabel()
         label.text = "Add events to your calendar quickly with just your camera!"
         label.font = UIFont.systemFont(ofSize: 16)
-        label.textColor = UIColor.secondaryLabel
+        label.textColor = UIColor.lightGray
         label.textAlignment = .center
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -50,7 +50,7 @@ class PhotoInputViewController: UIViewController {
         button.titleLabel?.font = UIFont.systemFont(ofSize: 32, weight: .bold)
         button.titleLabel?.numberOfLines = 0
         button.titleLabel?.textAlignment = .center
-        button.backgroundColor = UIColor.systemBlue
+        button.backgroundColor = UIColor(red: 0.8, green: 0.4, blue: 1.0, alpha: 1.0) // Bright purple
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 16
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -63,8 +63,8 @@ class PhotoInputViewController: UIViewController {
         button.titleLabel?.font = UIFont.systemFont(ofSize: 32, weight: .bold)
         button.titleLabel?.numberOfLines = 0
         button.titleLabel?.textAlignment = .center
-        button.backgroundColor = UIColor.systemGray5
-        button.setTitleColor(.label, for: .normal)
+        button.backgroundColor = UIColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 1.0) // Dark gray
+        button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 16
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -78,7 +78,7 @@ class PhotoInputViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = UIColor.systemBackground
+        view.backgroundColor = UIColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1.0) // Dark background
         
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)

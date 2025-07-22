@@ -21,7 +21,7 @@ class ProcessingViewController: UIViewController {
         let label = UILabel()
         label.text = "Processing Your Event"
         label.font = UIFont.systemFont(ofSize: 24, weight: .bold)
-        label.textColor = UIColor.systemBlue
+        label.textColor = UIColor(red: 0.8, green: 0.4, blue: 1.0, alpha: 1.0) // Bright purple
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -31,7 +31,7 @@ class ProcessingViewController: UIViewController {
         let label = UILabel()
         label.text = "Extracting event details from your image..."
         label.font = UIFont.systemFont(ofSize: 16)
-        label.textColor = UIColor.secondaryLabel
+        label.textColor = UIColor.lightGray
         label.textAlignment = .center
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -40,8 +40,8 @@ class ProcessingViewController: UIViewController {
     
     private let progressView: UIProgressView = {
         let progressView = UIProgressView(progressViewStyle: .default)
-        progressView.progressTintColor = UIColor.systemBlue
-        progressView.trackTintColor = UIColor.systemGray5
+        progressView.progressTintColor = UIColor(red: 0.8, green: 0.4, blue: 1.0, alpha: 1.0) // Bright purple
+        progressView.trackTintColor = UIColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 1.0) // Dark gray
         progressView.translatesAutoresizingMaskIntoConstraints = false
         return progressView
     }()
@@ -50,7 +50,7 @@ class ProcessingViewController: UIViewController {
         let label = UILabel()
         label.text = "0% Complete"
         label.font = UIFont.systemFont(ofSize: 14, weight: .medium)
-        label.textColor = UIColor.secondaryLabel
+        label.textColor = UIColor.lightGray
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -59,7 +59,7 @@ class ProcessingViewController: UIViewController {
     private let imagePreviewView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
-        imageView.backgroundColor = UIColor.systemGray6
+        imageView.backgroundColor = UIColor(red: 0.2, green: 0.2, blue: 0.2, alpha: 1.0) // Dark gray
         imageView.layer.cornerRadius = 8
         imageView.clipsToBounds = true
         imageView.isUserInteractionEnabled = true
@@ -102,7 +102,7 @@ class ProcessingViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = UIColor.systemBackground
+        view.backgroundColor = UIColor(red: 0.1, green: 0.1, blue: 0.1, alpha: 1.0) // Dark background
         
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
@@ -140,7 +140,7 @@ class ProcessingViewController: UIViewController {
             let stepLabel = UILabel()
             stepLabel.text = step
             stepLabel.font = UIFont.systemFont(ofSize: 16)
-            stepLabel.textColor = UIColor.systemGray
+            stepLabel.textColor = UIColor.lightGray
             stepLabel.translatesAutoresizingMaskIntoConstraints = false
             
             stepView.addSubview(checkmarkImageView)
@@ -286,7 +286,7 @@ class ProcessingViewController: UIViewController {
             if success {
                 self.stepCheckmarks[stepIndex].image = UIImage(systemName: "checkmark.circle.fill")
                 self.stepCheckmarks[stepIndex].tintColor = UIColor.systemGreen
-                self.stepLabels[stepIndex].textColor = UIColor.label
+                self.stepLabels[stepIndex].textColor = UIColor.white
             } else {
                 self.stepCheckmarks[stepIndex].image = UIImage(systemName: "xmark.circle.fill")
                 self.stepCheckmarks[stepIndex].tintColor = UIColor.systemRed
