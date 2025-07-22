@@ -8,12 +8,12 @@ class CalendarManager {
     
     private init() {}
     
-    func addEventToCalendar(title: String, location: String, startDate: Date, endDate: Date, completion: @escaping (Bool, Error?) -> Void) {
+    func addEventToCalendar(title: String, location: String, startDate: Date, endDate: Date, completion: @escaping (Bool, Error?, String?) -> Void) {
         // Use the new API for iOS 17+
         if #available(iOS 17.0, *) {
             eventStore.requestWriteOnlyAccessToEvents { [weak self] granted, error in
                 guard granted else {
-                    completion(false, error ?? NSError(domain: "CalendarManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "Calendar access denied"]))
+                    completion(false, error ?? NSError(domain: "CalendarManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "Calendar access denied"]), nil)
                     return
                 }
                 
@@ -23,7 +23,7 @@ class CalendarManager {
             // Fallback for older iOS versions
             eventStore.requestAccess(to: .event) { [weak self] granted, error in
                 guard granted else {
-                    completion(false, error ?? NSError(domain: "CalendarManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "Calendar access denied"]))
+                    completion(false, error ?? NSError(domain: "CalendarManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "Calendar access denied"]), nil)
                     return
                 }
                 
@@ -32,7 +32,7 @@ class CalendarManager {
         }
     }
 
-    private func createEvent(title: String, location: String, startDate: Date, endDate: Date, completion: @escaping (Bool, Error?) -> Void) {
+    private func createEvent(title: String, location: String, startDate: Date, endDate: Date, completion: @escaping (Bool, Error?, String?) -> Void) {
         let event = EKEvent(eventStore: eventStore)
         event.title = title
         event.location = location
@@ -43,9 +43,10 @@ class CalendarManager {
         
         do {
             try eventStore.save(event, span: .thisEvent)
-            completion(true, nil)
+            // Return the event identifier for deep linking
+            completion(true, nil, event.eventIdentifier)
         } catch {
-            completion(false, error)
+            completion(false, error, nil)
         }
     }
 }

@@ -436,13 +436,26 @@ private func setupActions() {
         // If no end date is provided, set it to one hour after the start date
         let endDate = selectedEndDate ?? Calendar.current.date(byAdding: .hour, value: 1, to: startDate) ?? startDate
         
-        CalendarManager.shared.addEventToCalendar(title: title, location: location, startDate: startDate, endDate: endDate) { [weak self] success, error in
+        CalendarManager.shared.addEventToCalendar(title: title, location: location, startDate: startDate, endDate: endDate) { [weak self] success, error, eventIdentifier in
             DispatchQueue.main.async {
                 if success {
                     let alert = UIAlertController(title: "Success!", message: "Event added to your calendar", preferredStyle: .alert)
-                    alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in
+                    
+                    // Option to add another event
+                    alert.addAction(UIAlertAction(title: "Add Another Event", style: .default) { _ in
+                        self?.navigationController?.popToRootViewController(animated: true)
+                    })
+                    
+                    // Option to open calendar
+                    alert.addAction(UIAlertAction(title: "Open Calendar", style: .default) { _ in
+                        self?.openCalendar()
+                    })
+                    
+                    // Option to just dismiss
+                    alert.addAction(UIAlertAction(title: "Done", style: .cancel) { _ in
                         self?.navigationController?.popViewController(animated: true)
                     })
+                    
                     self?.present(alert, animated: true)
                 } else {
                     let alert = UIAlertController(title: "Error", message: error?.localizedDescription ?? "Failed to add event to calendar", preferredStyle: .alert)
@@ -573,6 +586,24 @@ private func setupActions() {
     
     @objc private func dismissFullScreenImage() {
         dismiss(animated: true)
+    }
+    
+    // MARK: - Calendar Navigation
+    private func openCalendar() {
+        // Try to open the Calendar app
+        if let calendarURL = URL(string: "calshow://") {
+            if UIApplication.shared.canOpenURL(calendarURL) {
+                UIApplication.shared.open(calendarURL)
+            } else {
+                // Fallback: try to open the Calendar app using a different URL scheme
+                if let fallbackURL = URL(string: "x-apple-calevent://") {
+                    UIApplication.shared.open(fallbackURL)
+                }
+            }
+        }
+        
+        // Navigate back to the previous screen
+        navigationController?.popViewController(animated: true)
     }
     // MARK: - Date Parsing
     internal func parseDate(from dateString: String) -> Date? {
