@@ -38,7 +38,7 @@ class CalendarManager {
         event.location = location
         event.startDate = startDate
         event.endDate = endDate
-        event.notes = "Created with EventSnap"
+        event.notes = "Created with EventSnap+"
         event.calendar = eventStore.defaultCalendarForNewEvents
         
         do {

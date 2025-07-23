@@ -16,7 +16,7 @@ class PhotoInputViewController: UIViewController {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "EventSnap"
+        label.text = "EventSnap+"
         label.font = UIFont.systemFont(ofSize: 32, weight: .bold)
         label.textColor = UIColor(red: 0.8, green: 0.4, blue: 1.0, alpha: 1.0) // Bright purple
         label.textAlignment = .center

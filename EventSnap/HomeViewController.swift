@@ -7,7 +7,7 @@ class HomeViewController: UIViewController {
         view.backgroundColor = .white
         
         let titleLabel = UILabel()
-        titleLabel.text = "EventSnap"
+        titleLabel.text = "EventSnap+"
         titleLabel.font = UIFont.systemFont(ofSize: 32, weight: .bold)
         titleLabel.textColor = .systemBlue
         titleLabel.textAlignment = .center
