@@ -27,6 +27,7 @@
 		0043C5732E07332100273666 /* EventSnap.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EventSnap.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0043C5892E07332200273666 /* EventSnapTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EventSnapTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0043C5932E07332200273666 /* EventSnapUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EventSnapUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		5EC7E7512E07332200273666 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -88,6 +89,7 @@
 		0043C56A2E07332100273666 = {
 			isa = PBXGroup;
 			children = (
+				5EC7E7512E07332200273666 /* Secrets.xcconfig */,
 				0043C5752E07332100273666 /* EventSnap */,
 				0043C58C2E07332200273666 /* EventSnapTests */,
 				0043C5962E07332200273666 /* EventSnapUITests */,
@@ -284,6 +286,7 @@
 /* Begin XCBuildConfiguration section */
 		0043C59D2E07332200273666 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5EC7E7512E07332200273666 /* Secrets.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -313,6 +316,7 @@
 		};
 		0043C59E2E07332200273666 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 5EC7E7512E07332200273666 /* Secrets.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;

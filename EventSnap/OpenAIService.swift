@@ -47,8 +47,8 @@ struct EventDetails: Codable {
 class OpenAIService {
     static let shared = OpenAIService()
     
-    // Replace with your actual OpenAI API key
-    private let apiKey = "***REMOVED***"
+    // Loaded from Secrets.xcconfig (gitignored) via Info.plist
+    private let apiKey = Bundle.main.object(forInfoDictionaryKey: "OPENAI_API_KEY") as? String ?? ""
     private let baseURL = "https://api.openai.com/v1/chat/completions"
     
     // Custom URLSession with connectivity waiting
